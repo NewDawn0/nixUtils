@@ -7,6 +7,7 @@ Reusable Nix flake utility functions for simplifying multi-system package defini
 - **`eachSystem`**: Define outputs for multiple NixOS-supported systems with ease.
 - Support for custom `nixpkgs` inputs and overlays.
 - Fully compatible with the Nix flakes ecosystem.
+- Support for only partial platforms
 
 ## Installation
 
@@ -61,9 +62,9 @@ The following example defines a package output for multiple systems using the de
 }
 ```
 
-### Custom `nixpkgs` Input
+### Custom `systems` Input
 
-You can provide a custom `nixpkgs` input if you want to use a specific version or a fork:
+You can provide a custom `systems` input if you want to make the package only buildable for specific platforms
 
 ```nix
 {
@@ -71,11 +72,10 @@ You can provide a custom `nixpkgs` input if you want to use a specific version o
 
   inputs = {
     nixUtils.url = "github:NewDawn0/nixUtils";
-    customNixpkgs.url = "github:MyFork/nixpkgs";
   };
 
   outputs = { self, nixUtils, customNixpkgs, ... }: {
-    packages = nixUtils.lib.eachSystem { nixpkgs = customNixpkgs; } (pkgs: {
+    packages = nixUtils.lib.eachSystem { systems = ["x86_64-linux" "aarch64-linux"]; } (pkgs: {
       default = pkgs.hello;
     });
   };
@@ -103,33 +103,6 @@ You can define a custom package set with overlays and pass it via `mkPkgs`:
     };
   in {
     packages = nixUtils.lib.eachSystem { mkPkgs = myMkPkgs; } (pkgs: {
-      default = pkgs.hello;
-    });
-  };
-}
-```
-
-### Full Customization
-
-If you need to customize both `nixpkgs` and `mkPkgs`, you can combine the approaches:
-
-```nix
-{
-  description = "Fully customized example";
-
-  inputs = {
-    nixUtils.url = "github:NewDawn0/nixUtils";
-    customNixpkgs.url = "github:MyFork/nixpkgs";
-    overlay.url = "github:Some/example-overlay";
-  };
-
-  outputs = { self, nixUtils, customNixpkgs, overlay, ... }: let
-    myMkPkgs = system: import customNixpkgs {
-      system = system;
-      overlays = [ overlay.overlays.default ];
-    };
-  in {
-    packages = nixUtils.lib.eachSystem { nixpkgs = customNixpkgs; mkPkgs = myMkPkgs; } (pkgs: {
       default = pkgs.hello;
     });
   };
