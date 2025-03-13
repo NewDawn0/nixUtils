@@ -2,15 +2,15 @@
   description = "Reusable nix flake utility functions";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs";
+    default-nixpkgs.url = "github:nixos/nixpkgs";
     nix-systems.url = "github:nix-systems/default";
   };
 
-  outputs = { nixpkgs, nix-systems, ... }:
+  outputs = { default-nixpkgs, nix-systems, ... }:
     let
-      mkDefaultPkgs = system: nixpkgs.legacyPackages.${system};
-      eachSystem =
-        { nixpkgs ? nixpkgs, systems ? nix-systems, mkPkgs ? mkDefaultPkgs }:
+      mkDefaultPkgs = system: default-nixpkgs.legacyPackages.${system};
+      eachSystem = { nixpkgs ? default-nixpkgs, systems ? nix-systems
+        , mkPkgs ? mkDefaultPkgs }:
         f:
         nixpkgs.lib.genAttrs systems (system: let pkgs = mkPkgs; in f pkgs);
       basic = {
