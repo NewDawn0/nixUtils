@@ -9,7 +9,7 @@
     };
   };
 
-  outputs = { utils, nixpkgs, ... }@inputs:
+  outputs = { nixpkgs, self, utils, ... }:
     let
       mkPkgs = system:
         import nixpkgs {
@@ -18,8 +18,9 @@
         };
     in {
       packages = utils.lib.eachSystem { inherit mkPkgs; }
-        (pkgs: {
-          default = pkgs.hello;
-        });
+        (pkgs: { default = pkgs.hello; });
+      overlays.default = final: prev: {
+        TODO-PACKAGE-NAME = self.packages.${prev.system}.default;
+      };
     };
 }
