@@ -17,10 +17,10 @@
           overlays = [ ];
         };
     in {
-      packages = utils.lib.eachSystem { inherit mkPkgs; }
-        (pkgs: { default = pkgs.hello; });
       overlays.default = final: prev: {
         TODO-PACKAGE-NAME = self.packages.${prev.system}.default;
       };
+      packages = utils.lib.eachSystem { inherit mkPkgs; }
+        (pkgs: { default = pkgs.hello; });
     };
 }
