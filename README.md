@@ -10,6 +10,22 @@ Reusable Nix flake utility functions for simplifying multi-system package defini
 
 ## Installation
 
+### Using Templates
+
+- To use the basic template
+
+```bash
+nix flake init -t github:NewDawn0/nixUtils
+```
+
+- To use the full template, which offers overlays and other package creation settings
+
+```bash
+nix flake init -t github:NewDawn0/nixUtils#full
+```
+
+### Manual
+
 To use `nixUtils` in your Nix flake, add it as an input:
 
 ```nix
