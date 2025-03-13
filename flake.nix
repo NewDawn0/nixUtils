@@ -18,5 +18,19 @@
             system: mkNixpkgs.legacyPackages.${system};
         in nixpkgs.lib.genAttrs (import nix-systems)
         (system: let pkgs = mkPkgs system; in f pkgs);
-    in { lib = { inherit eachSystem; }; };
+      basic = {
+        path = ./templates/basic;
+        description = "nix flake init -t nixUtils#basic";
+      };
+      full = {
+        path = ./templates/full;
+        description = "nix flake init -t nixUtils#full";
+      };
+    in {
+      lib = { inherit eachSystem; };
+      templates = {
+        inherit basic full;
+        default = basic;
+      };
+    };
 }
