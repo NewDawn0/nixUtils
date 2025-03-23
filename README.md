@@ -97,8 +97,8 @@ You can define a custom package set with overlays and pass it via `mkPkgs`:
   };
 
   outputs = { self, nixUtils, overlay, nixpkgs, ... }: let
-    myMkPkgs = system: import nixpkgs {
-      system = system;
+    myMkPkgs = { system, overlays ? [] }: import nixpkgs {
+      inherit system;
       overlays = [ overlay.overlays.default ];
     };
   in {
