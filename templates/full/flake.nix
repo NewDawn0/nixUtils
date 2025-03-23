@@ -11,11 +11,8 @@
 
   outputs = { nixpkgs, self, utils, ... }:
     let
-      mkPkgs = system:
-        import nixpkgs {
-          inherit system;
-          overlays = [ ];
-        };
+      mkPkgs = { system, overlays ? [ ] }:
+        import nixpkgs { inherit system overlays; };
     in {
       overlays.default = final: prev: {
         TODO-PACKAGE-NAME = self.packages.${prev.system}.default;
