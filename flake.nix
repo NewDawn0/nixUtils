@@ -8,7 +8,7 @@
 
   outputs = { nixpkgs, nix-systems, ... }:
     let
-      mkDefaultPkgs = { system, overlays }:
+      mkDefaultPkgs = { system, overlays ? [ ] }:
         import nixpkgs { inherit system overlays; };
       eachSystem = { systems ? (import nix-systems), mkPkgs ? mkDefaultPkgs
         , overlays ? [ ] }:
