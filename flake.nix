@@ -8,13 +8,14 @@
 
   outputs = { nixpkgs, nix-systems, ... }:
     let
-      mkDefaultPkgs = { system, overlays ? [ ] }:
-        import nixpkgs { inherit system overlays; };
-      eachSystem = { systems ? (import nix-systems), mkPkgs ? mkDefaultPkgs
-        , overlays ? [ ] }:
+      mkPkgs = { system, config ? { }, overlays ? [ ] }:
+        import nixpkgs { inherit config system overlays; };
+      eachSystem =
+        { config ? { }, systems ? (import nix-systems), overlays ? [ ] }:
         f:
-        nixpkgs.lib.genAttrs systems
-        (system: let pkgs = mkPkgs { inherit system overlays; }; in f pkgs);
+        nixpkgs.lib.genAttrs systems (system:
+          let pkgs = mkPkgs { inherit config overlays system; };
+          in f pkgs);
       basic = {
         path = ./templates/basic;
         description = "nix flake init -t nixUtils#basic";
