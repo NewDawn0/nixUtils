@@ -2,8 +2,11 @@
   description = "Your awesome flake";
 
   inputs = {
-    # Other inputs ...
-    utils.url = "github:NewDawn0/nixUtils";
+    nixpkgs.url = "github:nixos/nixpkgs";
+    utils = {
+      url = "github:NewDawn0/nixUtils";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, utils, ... }: {
