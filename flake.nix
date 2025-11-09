@@ -7,36 +7,56 @@
     nix-systems.url = "github:nix-systems/default";
   };
 
-  outputs = { nixpkgs, nixpkgs-unstable, nix-systems, ... }:
+  outputs =
+    {
+      nixpkgs,
+      nixpkgs-unstable,
+      nix-systems,
+      ...
+    }:
     let
       eachSystem =
-        { config    ? {}
-        , overlays  ? []
-        , systems   ? (import nix-systems)
+        {
+          config ? { },
+          overlays ? [ ],
+          systems ? (import nix-systems),
         }:
         f:
-        nixpkgs.lib.genAttrs systems (system:
-          let mkPkgs        = source: import source { inherit config overlays system; };
-              pkgs          = mkPkgs nixpkgs;
-              pkgs-unstable = mkPkgs nixpkgs-unstable;
-          in f pkgs pkgs-unstable
-      );
+        nixpkgs.lib.genAttrs systems (
+          system:
+          let
+            mkPkgs = source: import source { inherit config overlays system; };
+            pkgs = mkPkgs nixpkgs;
+            pkgs-unstable = mkPkgs nixpkgs-unstable;
+          in
+          f pkgs pkgs-unstable
+        );
       small = {
-        path        = ./templates/small;
+        path = ./templates/small;
         description = "nix flake init -t nixUtils#small";
       };
       basic = {
-        path        = ./templates/basic;
+        path = ./templates/basic;
         description = "nix flake init -t nixUtils#basic";
       };
+      complete = {
+        path = ./templates/complete;
+        description = "nix flake init -t nixUtils#complete";
+      };
       full = {
-        path        = ./templates/full;
+        path = ./templates/full;
         description = "nix flake init -t nixUtils#full";
       };
-    in {
+    in
+    {
       lib = { inherit eachSystem; };
       templates = {
-        inherit basic full small;
+        inherit
+          basic
+          complete
+          full
+          small
+          ;
         default = basic;
       };
     };

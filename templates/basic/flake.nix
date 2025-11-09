@@ -18,9 +18,6 @@
         nativeBuildInputs = [ pkgs.deadnix ];
       } "deadnix --fail ${./.} && touch $out";
     });
-    devShells = perSystem (pkgs: _: {
-      default = pkgs.mkShell {};
-    });
     formatter = perSystem (pkgs: _: pkgs.alejandra);
     overlays.default = final: prev: {
       YOUR-PACKAGE = self.packages.${prev.system}.default;
