@@ -2,32 +2,41 @@
   description = "Reusable nix flake utility functions";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=25.05";
+    nixpkgs-unstable.url = "github:nixos/nixpkgs?ref=nixpkgs-unstable";
     nix-systems.url = "github:nix-systems/default";
   };
 
-  outputs = { nixpkgs, nix-systems, ... }:
+  outputs = { nixpkgs, nixpkgs-unstable, nix-systems, ... }:
     let
-      mkPkgs = { system, config ? { }, overlays ? [ ] }:
-        import nixpkgs { inherit config system overlays; };
       eachSystem =
-        { config ? { }, systems ? (import nix-systems), overlays ? [ ] }:
+        { config    ? {}
+        , overlays  ? []
+        , systems   ? (import nix-systems)
+        }:
         f:
         nixpkgs.lib.genAttrs systems (system:
-          let pkgs = mkPkgs { inherit config overlays system; };
-          in f pkgs);
+          let mkPkgs        = source: import source { inherit config overlays system; };
+              pkgs          = mkPkgs nixpkgs;
+              pkgs-unstable = mkPkgs nixpkgs-unstable;
+          in f pkgs pkgs-unstable
+      );
+      small = {
+        path        = ./templates/small;
+        description = "nix flake init -t nixUtils#small";
+      };
       basic = {
-        path = ./templates/basic;
+        path        = ./templates/basic;
         description = "nix flake init -t nixUtils#basic";
       };
       full = {
-        path = ./templates/full;
+        path        = ./templates/full;
         description = "nix flake init -t nixUtils#full";
       };
     in {
       lib = { inherit eachSystem; };
       templates = {
-        inherit basic full;
+        inherit basic full small;
         default = basic;
       };
     };

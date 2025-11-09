@@ -1,24 +1,38 @@
 {
-  description = "Your awesome flake";
+  description = "Full flake template";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs";
-    utils = {
+    nixpkgs.url = "github:nixos/nixpkgs?ref=25.05";
+    nixpkgs-unstable.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nix-utils = {
       url = "github:NewDawn0/nixUtils";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs-unstable.follows = "nixpkgs-unstable";
     };
   };
-
-  outputs = { self, utils, ... }@inputs: {
-    overlays.default = final: prev: {
-      TODO-PACKAGE-NAME = self.packages.${prev.system}.default;
-    };
-    packages = utils.lib.eachSystem {
+  outputs = args@{ self, nix-utils, ... }: let
+    perSystem = nix-utils.lib.eachSystem {
+      config = { allowUnfree = true; };
       systems = [ "x86_64-linux" "aarch64-linux" ];
-      config = { };
-      overlays = [ ];
-    } (pkgs: {
-      default = pkgs.hello; # default package
+      overlays = with args; [ ];
+    };
+  in {
+    checks = perSystem (pkgs: _: {
+      deadnix = pkgs.runCommand "deadnix" {
+        nativeBuildInputs = [ pkgs.deadnix ];
+      } "deadnix --fail ${./.} && touch $out";
     });
+    devShells = perSystem (pkgs: _: {
+      default = pkgs.mkShell {};
+    });
+    formatter = perSystem (pkgs: _: pkgs.alejandra);
+    overlays.default = final: prev: {
+      YOUR-PACKAGE = self.packages.${prev.system}.default;
+    };
+    packages = perSystem (
+      pkgs: unstable: {
+        default = pkgs.hello;
+      }
+    );
   };
 }
