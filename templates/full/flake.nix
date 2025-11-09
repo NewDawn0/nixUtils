@@ -10,16 +10,20 @@
       inputs.nixpkgs-unstable.follows = "nixpkgs-unstable";
     };
   };
-  outputs = args@{ self, nix-utils, ... }: let
+  outputs = args @ {
+    self,
+    nix-utils,
+    ...
+  }: let
     perSystem = nix-utils.lib.eachSystem {
-      config = { allowUnfree = true; };
-      systems = [ "x86_64-linux" "aarch64-linux" ];
-      overlays = with args; [ ];
+      config = {allowUnfree = true;};
+      systems = ["x86_64-linux" "aarch64-linux"];
+      overlays = with args; [];
     };
   in {
     checks = perSystem (pkgs: _: {
       deadnix = pkgs.runCommand "deadnix" {
-        nativeBuildInputs = [ pkgs.deadnix ];
+        nativeBuildInputs = [pkgs.deadnix];
       } "deadnix --fail ${./.} && touch $out";
     });
     devShells = perSystem (pkgs: _: {

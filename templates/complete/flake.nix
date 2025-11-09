@@ -10,32 +10,33 @@
       inputs.nixpkgs-unstable.follows = "nixpkgs-unstable";
     };
   };
-  outputs =
-    args@{ self, nix-utils, ... }:
-    let
-      perSystem = nix-utils.lib.eachSystem { };
-    in
-    {
-      checks = perSystem (
-        pkgs: _: {
-          deadnix = pkgs.runCommand "deadnix" {
-            nativeBuildInputs = [ pkgs.deadnix ];
-          } "deadnix --fail ${./.} && touch $out";
-        }
-      );
-      devShells = perSystem (
-        pkgs: _: {
-          default = pkgs.mkShell { };
-        }
-      );
-      formatter = perSystem (pkgs: _: pkgs.alejandra);
-      overlays.default = final: prev: {
-        YOUR-PACKAGE = self.packages.${prev.system}.default;
-      };
-      packages = perSystem (
-        pkgs: unstable: {
-          default = pkgs.hello;
-        }
-      );
+  outputs = args @ {
+    self,
+    nix-utils,
+    ...
+  }: let
+    perSystem = nix-utils.lib.eachSystem {};
+  in {
+    checks = perSystem (
+      pkgs: _: {
+        deadnix = pkgs.runCommand "deadnix" {
+          nativeBuildInputs = [pkgs.deadnix];
+        } "deadnix --fail ${./.} && touch $out";
+      }
+    );
+    devShells = perSystem (
+      pkgs: _: {
+        default = pkgs.mkShell {};
+      }
+    );
+    formatter = perSystem (pkgs: _: pkgs.alejandra);
+    overlays.default = final: prev: {
+      YOUR-PACKAGE = self.packages.${prev.system}.default;
     };
+    packages = perSystem (
+      pkgs: unstable: {
+        default = pkgs.hello;
+      }
+    );
+  };
 }

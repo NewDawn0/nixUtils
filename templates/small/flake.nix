@@ -10,8 +10,8 @@
       inputs.nixpkgs-unstable.follows = "nixpkgs-unstable";
     };
   };
-  outputs = { nix-utils, ... }: {
-    packages = nix-utils.lib.eachSystem { } (
+  outputs = {nix-utils, ...}: {
+    packages = nix-utils.lib.eachSystem {} (
       pkgs: unstable: {
         default = pkgs.hello;
       }
