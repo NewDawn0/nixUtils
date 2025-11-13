@@ -1,5 +1,17 @@
-{lib}: let
-  inherit (lib) elem isString isInt all assertMsg elemAt filter lists match splitString;
+{nixpkgs}: let
+  inherit
+    (nixpkgs.lib)
+    elem
+    isString
+    isInt
+    all
+    assertMsg
+    elemAt
+    filter
+    lists
+    match
+    splitString
+    ;
   asList = x: lists.flatten [x];
   isArm = sys:
     if match ".*arm.*" sys != null
@@ -20,12 +32,25 @@
   };
 
   systems = {
-    all = lib.systems.flakeExposed;
+    all = nixpkgs.lib.systems.flakeExposed;
     default = systems.tier1;
     # Support tiers
-    tier1 = ["x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];
-    tier2 = ["armv7l-linux" "riscv64-linux" "powerpc64le-linux"];
-    tier3 = ["i686-linux" "armv6l-linux" "x86_64-freebsd"];
+    tier1 = [
+      "x86_64-linux"
+      "aarch64-linux"
+      "x86_64-darwin"
+      "aarch64-darwin"
+    ];
+    tier2 = [
+      "armv7l-linux"
+      "riscv64-linux"
+      "powerpc64le-linux"
+    ];
+    tier3 = [
+      "i686-linux"
+      "armv6l-linux"
+      "x86_64-freebsd"
+    ];
     # Special
     arm = filter (x: isArm x) systems.all;
   };
@@ -46,4 +71,6 @@
       assert chk.OS os';
         filter (x: elem (get.OS x) os');
   };
-in {inherit systems filters;}
+in {
+  inherit systems filters;
+}
