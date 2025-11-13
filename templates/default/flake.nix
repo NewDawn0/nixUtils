@@ -1,5 +1,5 @@
 {
-  description = "Full flake template";
+  description = "Default flake template";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=25.05";
@@ -19,12 +19,6 @@
         deadnix = pkgs.runCommand "deadnix" {
           nativeBuildInputs = [pkgs.deadnix];
         } "deadnix --fail ${./.} && touch $out";
-      });
-    devShells = utils.eachSystem {} (p:
-      with p; {
-        default = pkgs.mkShell {
-          packages = with pkgs; [hello];
-        };
       });
     formatter = utils.lib.eachSystem {} (p: p.pkgs.alejandra);
     overlays.default = _: prev: {
