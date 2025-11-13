@@ -3,56 +3,42 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=25.05";
-    nixpkgs-unstable.url = "github:nixos/nixpkgs?ref=nixpkgs-unstable";
-    nix-systems.url = "github:nix-systems/default";
   };
 
-  outputs = {
-    nixpkgs,
-    nixpkgs-unstable,
-    nix-systems,
-    ...
-  }: let
-    eachSystem = {
-      config ? {},
-      overlays ? [],
-      systems ? (import nix-systems),
-    }: f:
-      nixpkgs.lib.genAttrs systems (
-        system: let
-          mkPkgs = source: import source {inherit config overlays system;};
-          pkgs = mkPkgs nixpkgs;
-          pkgs-unstable = mkPkgs nixpkgs-unstable;
-        in
-          f pkgs pkgs-unstable
-      );
-    small = {
-      path = ./templates/small;
-      description = "nix flake init -t nixUtils#small";
-    };
-    basic = {
-      path = ./templates/basic;
-      description = "nix flake init -t nixUtils#basic";
-    };
-    complete = {
-      path = ./templates/complete;
-      description = "nix flake init -t nixUtils#complete";
-    };
-    full = {
-      path = ./templates/full;
-      description = "nix flake init -t nixUtils#full";
+  outputs = {nixpkgs, ...}: let
+    fn = import ./lib/fn.nix {inherit nixpkgs;};
+    sys = import ./lib/systems.nix {inherit nixpkgs;};
+    lib = {
+      inherit (fn) eachSystem;
+      inherit (sys) system filters;
     };
   in {
-    lib = {inherit eachSystem;};
-    formatter = eachSystem {} (pkgs: _: pkgs.alejandra);
+    inherit lib;
+    formatter = lib.eachSystem {} (p: p.pkgs.alejandra);
+    checks = lib.eachSystem {} (
+      p:
+        with p; {
+          deadnix = pkgs.runCommand "deadnix" {
+            nativeBuildInputs = [pkgs.deadnix];
+          } "deadnix --fail ${./.} && touch $out";
+        }
+    );
+    packages = lib.eachSystem {} (p: {
+      default = p.pkgs.hello;
+    });
     templates = {
-      inherit
-        basic
-        complete
-        full
-        small
-        ;
-      default = basic;
+      default = {
+        path = ./templates/default;
+        description = "Basic flake template";
+      };
+      full = {
+        path = ./templates/full;
+        description = "Complete flake template";
+      };
+      dual-pkgs = {
+        path = ./templates/dual-pkgs;
+        description = "Basic flake template with stable and unstable pkgs";
+      };
     };
   };
 }
