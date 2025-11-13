@@ -13,8 +13,7 @@
     self,
     utils,
     ...
-  }: let
-  in {
+  }: {
     checks = utils.lib.eachSystem {} (
       p:
         with p; {
