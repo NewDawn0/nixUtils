@@ -7,19 +7,22 @@
 
   outputs = {nixpkgs, ...}: let
     fn = import ./lib/fn.nix {inherit nixpkgs;};
+    sys = import ./lib/systems.nix {inherit nixpkgs;};
     lib = {
       inherit (fn) eachSystem;
-      systems = import ./lib/systems.nix {inherit nixpkgs;};
+      inherit (sys) system filters;
     };
   in {
     inherit lib;
     formatter = lib.eachSystem {} (p: p.pkgs.alejandra);
-    checks = lib.eachSystem {} (p:
-      with p; {
-        deadnix = pkgs.runCommand "deadnix" {
-          nativeBuildInputs = [pkgs.deadnix];
-        } "deadnix --fail ${./.} && touch $out";
-      });
+    checks = lib.eachSystem {} (
+      p:
+        with p; {
+          deadnix = pkgs.runCommand "deadnix" {
+            nativeBuildInputs = [pkgs.deadnix];
+          } "deadnix --fail ${./.} && touch $out";
+        }
+    );
     packages = lib.eachSystem {} (p: {
       default = p.pkgs.hello;
     });
