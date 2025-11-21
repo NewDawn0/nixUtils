@@ -19,6 +19,9 @@
           deadnix = pkgs.runCommand "deadnix" {
             nativeBuildInputs = [pkgs.deadnix];
           } "deadnix --fail ${./.} && touch $out";
+          typos = pkgs.runCommand "typos" {
+            nativeBuildInputs = [pkgs.typos];
+          } "typos --format brief && touch $out";
         }
     );
     formatter = utils.lib.eachSystem {} (p: p.pkgs.alejandra);
