@@ -2,7 +2,7 @@
   description = "Reusable nix flake utility functions";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=25.05";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=25.11";
   };
 
   outputs = {nixpkgs, ...}: let
@@ -41,6 +41,10 @@
       dual-pkgs = {
         path = ./templates/dual-pkgs;
         description = "Basic flake template with stable and unstable pkgs";
+      };
+      minimal = {
+        path = ./templates/minimal;
+        description = "Minimal flake template";
       };
     };
   };
